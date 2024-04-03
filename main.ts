@@ -1,165 +1,55 @@
 input.onButtonPressed(Button.A, function () {
     vysielaj = true
 })
-input.onButtonPressed(Button.B, function () {
-    vysielaj = false
-})
-function windDirection (smer_vetra: string) {
-    if (smer_vetra == "N") {
+function smerVetra (text: string) {
+    if (text == "N") {
         return 0
-    } else if (smer_vetra == "NE") {
+    } else if (text == "NE") {
         return 1
-    } else if (smer_vetra == "E") {
+    } else if (text == "E") {
         return 2
-    } else if (smer_vetra == "SE") {
+    } else if (text == "SE") {
         return 3
-    } else if (smer_vetra == "S") {
+    } else if (text == "S") {
         return 4
-    } else if (smer_vetra == "SW") {
+    } else if (text == "SW") {
         return 5
-    } else if (smer_vetra == "W") {
+    } else if (text == "W") {
         return 6
     } else {
         return 7
     }
 }
-function radioAnimation () {
-    basic.showLeds(`
-        . . . . .
-        . . . . .
-        . . . . .
-        . . . . .
-        . . . . #
-        `)
-    basic.showLeds(`
-        . . . . .
-        . . . . .
-        . . . . .
-        . . . # #
-        . . . # #
-        `)
-    basic.showLeds(`
-        . . . . .
-        . . . . .
-        . . # # #
-        . . # # .
-        . . # . #
-        `)
-    basic.showLeds(`
-        . . . . .
-        . # # # #
-        . # # . .
-        . # . # .
-        . # . . #
-        `)
-    basic.showLeds(`
-        # # # # .
-        # # . . .
-        # . # . .
-        # . . # .
-        . . . . #
-        `)
-    basic.showLeds(`
-        # . . . .
-        . # . . .
-        . . # . .
-        . . . # .
-        . . . . .
-        `)
-    basic.showLeds(`
-        # . . . .
-        . # . . .
-        . . # . .
-        . . . . .
-        . . . . .
-        `)
-    basic.showLeds(`
-        # . . . .
-        . # . . .
-        . . . . .
-        . . . . .
-        . . . . .
-        `)
-    basic.showLeds(`
-        # . . . .
-        . . . . .
-        . . . . .
-        . . . . .
-        . . . . .
-        `)
-    basic.showLeds(`
-        . . . . .
-        . . . . .
-        . . . . .
-        . . . . .
-        . . . . .
-        `)
-}
+input.onButtonPressed(Button.B, function () {
+    vysielaj = false
+})
 let vysielaj = false
-basic.showLeds(`
-    . . . . .
-    . . . . .
-    . . . . .
-    . . . . .
-    # # # # #
-    `)
 radio.setGroup(23)
-basic.showLeds(`
-    . . . . .
-    . . . . .
-    . . . . .
-    # # # # #
-    # # # # #
-    `)
+weatherbit.startWeatherMonitoring()
 weatherbit.startRainMonitoring()
-basic.showLeds(`
-    . . . . .
-    . . . . .
-    # # # # #
-    # # # # #
-    # # # # #
-    `)
 weatherbit.startWindMonitoring()
-basic.showLeds(`
-    . . . . .
-    # # # # #
-    # # # # #
-    # # # # #
-    # # # # #
-    `)
 vysielaj = false
-basic.showLeds(`
-    # # # # #
-    # # # # #
-    # # # # #
-    # # # # #
-    # # # # #
-    `)
 basic.forever(function () {
     if (vysielaj) {
-        weatherbit.startWeatherMonitoring()
         radio.sendValue("tmp", Math.idiv(weatherbit.temperature(), 100))
         radio.sendValue("pressure", Math.idiv(weatherbit.pressure(), 25600))
         radio.sendValue("humidity", Math.idiv(weatherbit.humidity(), 1024))
-        radio.sendValue("rain", weatherbit.rain() * 25.4)
-        radio.sendValue("wind", weatherbit.windSpeed() * 1.609344)
-        radio.sendValue("name", windDirection(weatherbit.windDirection()))
+        radio.sendValue("rain", Math.round(weatherbit.rain() * 25.4))
+        radio.sendValue("wind", Math.round(weatherbit.windSpeed() * 1.609344))
+        radio.sendValue("wind_dir", smerVetra(weatherbit.windDirection()))
         radio.sendValue("soil_mst", Math.round(Math.map(weatherbit.soilMoisture(), 0, 1023, 0, 100)))
         radio.sendValue("soil_tmp", Math.idiv(weatherbit.soilTemperature(), 100))
-        radioAnimation()
-        basic.pause(300000)
+        basic.pause(3600000)
     }
 })
 basic.forever(function () {
     if (vysielaj) {
         basic.showIcon(IconNames.Yes)
-        basic.pause(500)
-        basic.clearScreen()
-        basic.pause(200)
+        basic.pause(100)
     } else {
         basic.showIcon(IconNames.No)
-        basic.pause(500)
-        basic.clearScreen()
-        basic.pause(200)
+        basic.pause(100)
     }
+    basic.clearScreen()
+    basic.pause(2000)
 })
